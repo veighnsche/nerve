@@ -1,7 +1,10 @@
 #![forbid(unsafe_code)]
 
 fn print_usage() {
-    eprintln!("nrv {}\n\nUsage:\n  nrv --version\n  nrv sync-capabilities\n", env!("CARGO_PKG_VERSION"));
+    eprintln!(
+        "nrv {}\n\nUsage:\n  nrv --version\n  nrv sync-capabilities\n",
+        env!("CARGO_PKG_VERSION")
+    );
 }
 
 fn main() {

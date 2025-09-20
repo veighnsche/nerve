@@ -25,12 +25,15 @@ fn stream(&self, task_id: TaskId) -> Stream<Item = StreamEvent>;
 fn cancel(&self, task_id: TaskId) -> Result<Cancelled, NrvServerError>;
 ```
 
-* **Capabilities** must return:
+* **Capabilities** returns a `CapabilitySnapshot` with:
 
-  * `ctx_max` (input context size)
-  * `max_tokens_out`
-  * `supported_workloads` (chat, completion, embeddings, etc.)
-  * engine/version metadata
+  * `metadata` → engine, semantic version, optional build/commit identifiers.
+  * `limits` → global ceilings (`ctx_max`, `max_tokens_out`, optional concurrency + queue quantities).
+  * `workloads` → supported workload kinds with model lists and guardrail flags.
+  * `models` → catalogue entries describing modality, context ceilings, and tool-call support.
+  * `hardware` → GPU inventory (and optional CPU data) for placement hints.
+  * `tools` → optional server-hosted tool list (name/description/schema).
+  * `captured_at` → ISO 8601 timestamp for the snapshot.
 * **Stream** follows: `Started → Token* → Metrics* → End` OR `Error`.
 * **Cancel** confirms job termination or returns a structured error.
 

@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-- Specs live under `.specs/`. Language docs in `.specs/language/` (e.g., `.specs/language/00_nerve.md`).
+- Specs live under `.specs/`, anchored by `.specs/00_nerve.md` as the entry point.
 - Keep new specs in `.specs/` using zero‑padded ordering: `00_topic.md`, `01_subtopic.md`.
 - Use folders for domains when a file exceeds ~500 lines.
 
@@ -26,7 +26,7 @@
 ## Coding Style & Naming Conventions
 
 - Markdown (deprioritized): use `#`, `##`, `###` headings; wrap at ~100 chars where reasonable.
-- Code fences: specify language (e.g., ```nerve,```bash). Prefer runnable, minimal examples.
+- Code fences: specify language (e.g., ```bash```, ```rust```). Prefer runnable, minimal examples.
 - Filenames (specs): snake_case with numeric prefix: `NN_title.md` (e.g., `02_interpreter.md`).
 - Rust/TS: prefer small, composable modules; keep public surface minimal and explicit.
 - Tone: instructive, precise, and implementation‑oriented; avoid speculative language.
@@ -48,8 +48,11 @@
 ## Agent‑Specific Instructions
 
 - Follow this AGENTS.md across the repo; prefer minimal, surgical diffs.
+- `nrv.llm` is the heart of the library. When in doubt, ensure capabilities → enqueue → stream
+  surfaces stay first-class and explicit before touching other namespaces.
 - Do not invent tooling; only reference commands that exist or mark them optional.
 - Preserve numbering/order in spec files; when renumbering, adjust all references and anchors.
 - Avoid adding licenses/headers; keep changes narrowly scoped to the task.
-- Backwards compatibility: do NOT preserve it. Early‑stage policy is to break APIs/CLIs as needed. Update all callers and docs within the same change. No deprecation shims.
+- Backwards compatibility: do NOT preserve it. Early-stage policy is to break APIs/CLIs as needed. Update all callers and docs within the same change. No deprecation shims.
 - This supersedes any ADR suggesting future compatibility guarantees until explicitly revised.
+- Keep `todo.md` in the repo root current; when it reaches "done", update its content, then run `sceipts/archive_todo.sh` to file it into `.done/NNN_todo.md` so archives stay sequential.

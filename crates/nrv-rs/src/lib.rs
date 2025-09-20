@@ -9,10 +9,48 @@
 //! - ADR-013: UI applets (TTY + JSON mode)
 //! - ADR-008: Anti-Insanity Clause (no hidden behavior)
 
-pub mod file {}
-pub mod dir {}
-pub mod apply {}
-pub mod ctx {}
-pub mod r#match {}
-pub mod proof {}
-pub mod ui {}
+pub mod llm;
+
+pub mod file {
+    /// Placeholder for file guardrail primitives (ADR-006).
+    #[must_use]
+    pub const fn module_name() -> &'static str {
+        "file"
+    }
+}
+
+pub mod dir {
+    /// Placeholder for directory guardrail primitives (ADR-006).
+    #[must_use]
+    pub const fn module_name() -> &'static str {
+        "dir"
+    }
+}
+
+pub mod apply;
+
+pub mod ctx {
+    /// Placeholder for context budgeting primitives (ADR-007).
+    #[must_use]
+    pub const fn module_name() -> &'static str {
+        "ctx"
+    }
+}
+
+pub mod r#match {
+    /// Placeholder for semantic matcher helpers (ADR-009).
+    #[must_use]
+    pub const fn module_name() -> &'static str {
+        "match"
+    }
+}
+
+pub mod proof {
+    /// Placeholder for proof bundle helpers (ADR-012).
+    #[must_use]
+    pub const fn module_name() -> &'static str {
+        "proof"
+    }
+}
+
+pub use nrv_ui as ui;

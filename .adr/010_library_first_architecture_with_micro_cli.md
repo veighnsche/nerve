@@ -36,11 +36,12 @@ The CLI is a helper, not a runtime.
 Commands:
 
 - `nrv sync-capabilities`
-  - Calls llama-orch for `GET /capabilities` (and related endpoints).
-  - Generates:
-    - `.nrv/generated/capabilities.ts` (`as const` arrays → literal unions).
-    - `.nrv/generated/types.d.ts` (ambient types / module augmentation).
-    - `src/nrv_capabilities.rs` (Rust module with constants).
+  - Calls llama-orch for `GET /capabilities` once, validating against the `nrv.orch Capabilities` schema.
+  - Generates deterministic snapshots with matching Rust + TS representations:
+    - `.nrv/generated/capabilities.ts` exporting the snapshot `as const`.
+    - `.nrv/generated/types.d.ts` declaring literal unions (model IDs, GPU IDs, workload kinds) and the `CapabilitySnapshot` interface.
+    - `apps/nrv/src/nrv_capabilities.rs` exposing `pub const CAPABILITIES: CapabilitySnapshot` for Rust consumers.
+  - Uses temporary files + atomic rename to prevent torn writes; returns non-zero on transport or IO failure.
 - `nrv init` (optional)
   - Creates `.nrv/config.json` and minimal scaffolds (`index.ts`, `tsconfig.json`).
 - No runner: users run scripts via `node`, `bun`, `deno`, or `cargo`.

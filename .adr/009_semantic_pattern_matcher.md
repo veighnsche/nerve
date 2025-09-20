@@ -56,8 +56,8 @@ const prompt = [
   "\n\n== RESPONSE ==\n", contract
 ];
 
-const out = await nrv.llm({ model, input: prompt }).run();
-const decision = nrv.match.validateOneOf(out.asJson(), { labels, abstainLabel: "out_of_scope" });
+const out = await nrv.llm.request({ model, input: prompt }).awaitJson();
+const decision = nrv.match.validateOneOf(out, { labels, abstainLabel: "out_of_scope" });
 
 await nrv.match.route(decision, {
   spec_ok:        () => proceed(),

@@ -12,6 +12,7 @@
 ## Reference Surfaces
 
 - Exhaustive `nrv` object categories and applets: [02_nrv_object.md](./02_nrv_object.md)
+- Core LLM lifecycle (capabilities → enqueue → stream): [10_nrv_llm.md](./10_nrv_llm.md)
 - Core UI applets only (subset of the above): [01_ui_applets.md](./01_ui_applets.md)
 
 ## Constitution (Authoritative Principles)
@@ -41,6 +42,8 @@
 
 - Architecture
   - Nerve MUST be library-first: `@nrv/core` (JS/TS) and `nrv-rs` (Rust) are the primary surfaces.
+  - The `nrv.llm` namespace MUST exist in core and provide the canonical
+    capabilities → enqueue → stream/cancel lifecycle for model calls.
   - The micro-CLI MAY provide code generation and initialization, and MUST NOT serve as a runtime.
   - Scripts MUST run via standard tools (node, bun, deno, cargo), not the CLI.
   - The CLI MAY snapshot real server/device capabilities into generated, typed files.
@@ -56,6 +59,8 @@
 - LLM policies
   - LLM interactions MUST be explicit and version-controlled in-repo; hidden roles or fixers MUST
      NOT exist in core.
+  - Core primitives MUST surface structured errors, response parsing, and streaming hooks for LLM
+     jobs without injecting retries or policy.
   - Context budgeting policies (pack/truncate/summarize) MUST be userland; the CLI MAY provide
      mechanics and MUST provide a default over-context guardrail with an explicit override.
   - Semantic matchers MUST be pure helpers (compile/validate/route) and MUST NOT call LLMs.

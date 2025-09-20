@@ -1,42 +1,42 @@
 # TODO
 
-Align the project plan with the current scaffolding and guidelines. Keep changes
-small, implementation‑oriented, and consistent with `.specs/` conventions.
+## nrv.llm implementation
+- [x] Flesh out `nrv.rs::llm` client: transport wiring for enqueue/stream/cancel.
+- [x] Implement `LlmRequest` builder with validation against capabilities.
+- [ ] Handle streaming event pipeline (`Token`, `ToolCall`, `ToolResult`, metrics, completion).
+- [ ] Integrate tool registry: dispatch tool calls, enforce JSON Schema, return results.
+- [ ] Align TypeScript client with Rust surface.
+- [ ] Add unit/integration tests and BDD coverage for request/stream/tool lifecycle.
 
-## Structure & Scaffolding
-- Ensure `.specs/` and `.specs/language/` exist and remain the home for specs.
-- Name spec files with zero‑padded, snake_case prefixes: `NN_title.md`.
-- Split oversized specs (~500+ lines) into a folder; keep an index file.
-- Maintain a short index in `.specs/` (or update an existing one) explaining
-  ordering, anchors, and how to navigate sections.
+## File/Dir/Apply primitives
+- [ ] Implement `nrv.file` read/write/stat/remove/exists with guardrails + tests.
+- [ ] Implement `nrv.dir` list/ensure/remove_empty/walk.
+- [ ] Ship diff engine for `nrv.apply.diff` (parse hunks, apply, checksum handling).
+- [ ] Provide JS bindings for file/dir/apply primitives.
+- [ ] Add BDD scenarios covering diff apply success/failure.
 
-## Language Specs
-- Verify `.specs/language/00_nerve.md` exists as the entry point. If renumbering,
-  update all intra‑repo links and anchors accordingly.
-- Plan and add subsequent, focused specs in order (e.g., `01_syntax.md`,
-  `02_interpreter.md`) only when needed; keep each file cohesive and <~500 lines.
-- Provide minimal, runnable examples using fenced code blocks with languages set
-  (e.g., `nerve`, `bash`). Mark non‑executable snippets with comments.
+## Command execution
+- [ ] Implement `nrv.exec.run` with timeouts, env/cwd controls, captured output.
+- [ ] Provide JS bindings and tests.
 
-## Style, Lint, and Links
-- Use `#`, `##`, `###` headings and wrap lines near ~100 chars.
-- Before a PR, lint Markdown and fix warnings.
-- Validate intra‑repo links (`[...](./relative/path.md)`) and anchors.
-- Optional local checks:
-  - `rg -n "flow\s\"" .specs` — quick scan for examples.
-  - `npx markdownlint "**/*.md"` — lint Markdown formatting.
-  - `npx markdown-link-check .specs/language/00_nerve.md` — validate links.
+## CLI
+- [ ] Implement `nrv sync-capabilities`: orchestrator call, schema validation, generated TS/Rust files.
+- [ ] Add CLI integration tests verifying deterministic output.
+- [ ] Consider CLI wrappers for diff apply when core primitive is ready.
 
-## Editing & Review Workflow
-- Preserve numbering/order; when renumbering, adjust all references and anchors.
-- Prefer small, atomic changes focused on one topic per commit.
-- Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`).
-- Keep tone instructive, precise, implementation‑oriented; avoid speculation.
+## Proofs & telemetry
+- [ ] Define proof bundle schema for LLM requests, tool invocations, file writes, exec runs.
+- [ ] Implement proof sink pluggability in Rust/TS clients.
 
-## Acceptance Criteria
-- Repo structure matches guidelines; specs live under `.specs/` with correct
-  naming and ordering.
-- Rust workspace builds (`cargo check --workspace`); CLI runs.
-- TS packages build if opted in (`npm run -w @nrv/core build`).
-- Cross‑references and anchors resolve where practical.
-- Examples are present, minimal, and consistent with the spec.
+## Context & matcher
+- [ ] Expand `nrv.ctx` spec + implementation for storing/retrieving scoped context.
+- [ ] Deliver initial matcher helpers per ADR-009.
+
+## Documentation & Examples
+- [ ] Update specs with implementation progress, examples, and guardrail overrides.
+- [ ] Publish guided examples for autonomous project scaffolding once primitives land.
+
+## Follow-up planning
+- [ ] Evaluate necessity of telemetry/metrics primitives.
+- [ ] Schedule ADR for tool attachments/binary support.
+- [ ] Review sandbox/guardrail policies after first implementation pass.

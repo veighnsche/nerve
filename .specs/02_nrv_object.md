@@ -13,47 +13,57 @@ Sources: ADR‑006, ADR‑007, ADR‑009, ADR‑010, ADR‑011, ADR‑012, ADR�
 
 ## Categories (Exhaustive)
 
-1) nrv.file (file primitives)
+1) nrv.llm (language model bridge)
+
+- Purpose: deterministic helpers for issuing LLM calls while keeping prompts, transports, and
+  schemas explicit (ADR‑002/014).
+- Notes: callers own every token; primitives expose capabilities, enqueue, stream, cancel, and
+  response helpers without hidden policy. Tool wiring lives in [13_llm_tool_calls.md](./13_llm_tool_calls.md).
+
+2) nrv.file (file primitives)
 
 - Purpose: single‑file operations with apply guardrails (ADR‑006).
 - Notes: deterministic writes; no hidden edits; respects user prompts/policies in caller space.
 
-2) nrv.dir (directory primitives)
+3) nrv.dir (directory primitives)
 
 - Purpose: directory introspection and creation helpers (ADR‑006).
 - Notes: no project shape assumptions; caller defines layout.
 
-3) nrv.apply (write/apply helpers)
+4) nrv.apply (write/apply helpers)
 
 - Purpose: explicit, auditable write/apply mechanics (ADR‑006), suitable for proof capture.
 - Notes: no auto‑writes; caller chooses strategy (overwrite, merge, skip).
+- Surface: `apply.diff({ path, diff, strategy?, checksum? })` applies unified diffs deterministically (see [12_nrv_apply.md](./12_nrv_apply.md)).
 
-4) nrv.ctx (context mechanics)
+5) nrv.ctx (context mechanics)
 
 - Purpose: pass explicit context/state; do not embed policy (ADR‑007).
 - Notes: avoids globals; portable across environments.
 
-5) nrv.match (semantic matcher)
+6) nrv.match (semantic matcher)
 
 - Purpose: compile/validate/route using OneOf/ManyOf style helpers (ADR‑009).
 - Notes: deterministic; no hidden network or filesystem.
 
-6) nrv.proof (proof bundles)
+7) nrv.proof (proof bundles)
 
 - Purpose: capture JSONL proof bundles and attachments (ADR‑012) in deterministic layouts.
 - Notes: explicit capture only; no auto‑capture.
 
-7) nrv.ui (interaction applets)
+8) nrv.ui (interaction applets)
 
-- Purpose: tiny, deterministic applets that degrade to JSON for CI (ADR‑013/018).
+- Purpose: tiny, deterministic applets that degrade to JSON for CI (ADR-013/018).
 - Applets (exhaustive as of now):
   - step(label) → { info, ok, fail }
   - prompt.text({ label, default? }) → Promise<string>
   - prompt.confirm({ label, default? }) → Promise<boolean>
-  - diff(renderable) → "accept" | "reject" (default reject if non‑interactive)
+  - diff(renderable) → "accept" | "reject" (default reject if non-interactive)
   - progress.begin(label) → { tick, end }
+- Implementation: Rust surface lives in `crates/nrv-ui` and is re-exported via `nrv-rs::ui` for
+  the single `nrv` object; JS surface remains in `@nrv/core`.
 
-8) nrv.orch (orchestrator client)
+9) nrv.orch (orchestrator client)
 
 - Purpose: networking binding for capabilities and job/stream control (ADR‑014).
 - Surface (high‑level, normative):
@@ -65,16 +75,27 @@ Sources: ADR‑006, ADR‑007, ADR‑009, ADR‑010, ADR‑011, ADR‑012, ADR�
 
 ## Not Present (By Design)
 
-- nrv.llm: there is no core `llm` applet. Per ADR‑002, LLM interactions are user‑defined and/or
-  brokered via the orchestrator (`nrv.orch`). This keeps core free of model/prompt policy.
+- No additional categories are defined beyond those listed above. Any expansion MUST arrive via ADR
+  and be documented in this index before implementation begins.
 
 ## Exhaustiveness Guarantee
 
-The categories above (file, dir, apply, ctx, match, proof, ui, orch) constitute the complete `nrv`
+The categories above (file, dir, apply, llm, ctx, match, proof, ui, orch) constitute the complete `nrv`
 surface in this repository at this time. Any new category or applet must be added via ADR and then
 listed here to maintain exhaustiveness.
 
 ## Minimal Examples
+
+LLM lifecycle
+
+```ts
+const caps = await nrv.llm.capabilities();
+const job = await nrv.llm.enqueue({ model: caps.models[0].id, prompt: userAuthoredPrompt });
+for await (const ev of nrv.llm.stream(job.id)) {
+  if (ev.type === "token") process.stdout.write(ev.text);
+  if (ev.type === "error") throw new Error(`${ev.code}: ${ev.message}`);
+}
+```
 
 UI step
 
@@ -82,14 +103,4 @@ UI step
 const step = nrv.ui.step("Scaffolding");
 step.info("Checking repo structure");
 step.ok("Done");
-```
-
-Orchestrator stream (conceptual)
-
-```ts
-const caps = await nrv.orch.capabilities();
-const id = await nrv.orch.enqueue({ kind: "task", spec: { /* user-defined */ } });
-for await (const ev of nrv.orch.stream(id)) {
-  // handle events; surface via nrv.ui as desired
-}
 ```

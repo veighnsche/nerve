@@ -1,0 +1,11 @@
+[package]
+name = "nrv-ui"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dev-dependencies]
+cucumber = { version = "0.20", features = ["macros"] }
+tokio = { version = "1.39", features = ["macros", "rt", "rt-multi-thread"] }
