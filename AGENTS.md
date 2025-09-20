@@ -8,26 +8,35 @@
 
 ## Build, Test, and Development Commands
 
-- No build required; this repo currently hosts specifications and docs.
+- Rust workspace (primary):
+  - `cargo check --workspace`
+  - `cargo test --workspace` (as tests are added)
+  - `cargo run -p nrv -- --version`
+  - `cargo run -p nrv -- sync-capabilities`
+- TypeScript packages (optional):
+  - `npm install --workspaces --include-workspace-root --silent --no-fund`
+  - `npm run -w @nrv/core build`
+  - `npm run -w @nrv/ui-kit build`
 - Helpful local checks (optional):
   - `rg -n "flow\s\"" .specs` — quick scan for examples.
-  - `npx markdownlint "**/*.md"` — lint Markdown.
-  - `npx markdown-link-check .specs/language/00_nerve.md` — validate links.
+  - Markdown linting is NOT required; skip unless you explicitly want it.
+  - Link checks are optional during early code bring‑up.
 - If you add scripts or a Makefile, document commands here.
 
 ## Coding Style & Naming Conventions
 
-- Markdown: use `#`, `##`, `###` headings; wrap at ~100 chars where reasonable.
+- Markdown (deprioritized): use `#`, `##`, `###` headings; wrap at ~100 chars where reasonable.
 - Code fences: specify language (e.g., ```nerve,```bash). Prefer runnable, minimal examples.
-- Filenames: snake_case with numeric prefix: `NN_title.md` (e.g., `02_interpreter.md`).
+- Filenames (specs): snake_case with numeric prefix: `NN_title.md` (e.g., `02_interpreter.md`).
+- Rust/TS: prefer small, composable modules; keep public surface minimal and explicit.
 - Tone: instructive, precise, and implementation‑oriented; avoid speculative language.
 
 ## Testing Guidelines
 
-- Lint Markdown and fix warnings before opening a PR.
-- Validate intra‑repo links (`[...](./relative/path.md)`) and anchors.
-- For Nerve examples, ensure syntax is consistent with the spec and compiles conceptually; mark non‑executable snippets with comments.
-- Add small tests/examples rather than large, monolithic blocks.
+- Prioritize unit and integration tests for Rust and TS code.
+- For specs, keep examples correct and minimal; clearly mark non‑executable snippets.
+- Intra‑repo links and anchors are nice to have; fix opportunistically.
+- Markdown lint is NOT required.
 
 ## Commit & Pull Request Guidelines
 
@@ -42,3 +51,5 @@
 - Do not invent tooling; only reference commands that exist or mark them optional.
 - Preserve numbering/order in spec files; when renumbering, adjust all references and anchors.
 - Avoid adding licenses/headers; keep changes narrowly scoped to the task.
+- Backwards compatibility: do NOT preserve it. Early‑stage policy is to break APIs/CLIs as needed. Update all callers and docs within the same change. No deprecation shims.
+- This supersedes any ADR suggesting future compatibility guarantees until explicitly revised.

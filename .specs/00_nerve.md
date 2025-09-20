@@ -9,6 +9,11 @@
 
  ---
 
+## Reference Surfaces
+
+- Exhaustive `nrv` object categories and applets: [02_nrv_object.md](./02_nrv_object.md)
+- Core UI applets only (subset of the above): [01_ui_applets.md](./01_ui_applets.md)
+
 ## Constitution (Authoritative Principles)
 
 ### Constitution v1 — Core Principles and Architecture

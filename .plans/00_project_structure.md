@@ -24,7 +24,7 @@ Target structure:
 
 ```
 /docs/                      — user + dev docs (later)
-/.specs/                    — specifications (RFC-2119) + proofs
+/.specs/                    — specifications (RFC-2119 normalized)
 /.adr/                      — architecture decision records
 /.plans/                    — planning docs (this file)
 /crates/                    — Rust workspace members
@@ -35,6 +35,7 @@ Target structure:
 /ts/packages/               — TypeScript packages (optional for M1)
   @nrv/core/                — JS/TS core surface (ADR-010, 008)
   @nrv/ui-kit/              — optional UI Kit (ADR-013)
+/proofs/                    — optional, committed Proof Bundles for tests/examples (ADR-012)
 /xtask/                     — dev/maintenance tasks (workspace member)
 /.github/workflows/         — CI pipelines (lint, build, test)
 /scripts/                   — helper scripts (optional)
@@ -61,6 +62,40 @@ Target structure:
 - Optional JS/TS — `ts/packages/@nrv/core`, `ts/packages/@nrv/ui-kit`
   - MAY mirror surfaces for Node/Bun/Deno; start as stubs in M2/M3.
 
+### Responsibility Matrix (MUST / MUST NOT)
+
+- apps/nrv (micro-CLI)
+  - MUST: generate files, init templates, snapshot capabilities to typed artifacts.
+  - MUST NOT: execute LLM calls, implement retries/policies, manage secrets, run user workflows.
+  - IO: file writes are explicit and deterministic; guardrails enforced by core primitives.
+
+- crates/nrv-rs (core primitives)
+  - MUST: implement file/dir/apply with guardrails; expose ctx mechanics without policy; provide pure matchers; minimal proof capture helpers; tiny UI applets with JSON mode fallback.
+  - MUST NOT: perform network calls, manage secrets, inject prompts/policies, auto-capture proofs, perform implicit retries.
+  - Errors: return structured error objects with stable codes (ADR-011); panics only for invariants.
+
+- crates/nrv-orch-client (orchestrator binding)
+  - MUST: define typed client trait and error taxonomy; support `capabilities/enqueue/stream/cancel` semantics; stream events as data suitable for Proof Bundles.
+  - MUST NOT: apply business policy; MUST not hide SSE/network errors.
+
+- ts/packages/@nrv/*
+  - MUST: mirror the same boundaries as Rust; UI Kit is opt-in and built atop core applets.
+  - MUST NOT: add hidden behaviors or policy.
+
+### Allowed Dependencies (Boundaries)
+
+- `apps/nrv` → may depend on `nrv-rs` for primitives and on `nrv-orch-client` only for capability typing during codegen.
+- `crates/nrv-rs` → MUST have zero dependency on orchestrator/network crates.
+- `crates/nrv-orch-client` → MUST be independent from `nrv-rs` primitives to keep surfaces decoupled.
+- `@nrv/ui-kit` → MAY depend on `@nrv/core`; NEVER vice versa.
+
+### Separation Verification (Acceptance)
+
+- Grep checks show `apps/nrv` contains no network code and no LLM calls.
+- `nrv-rs` builds with `--offline` and no net features; no references to HTTP/SSE clients.
+- `nrv-orch-client` exposes traits/types only; no runtime network requirement for compile.
+- CI denies warnings; clippy confirms no `unwrap()` in library code paths that handle errors.
+
 ## 4) Versioning & Releases (ADR-015)
 
 - Independent versioning per crate/package.
@@ -73,6 +108,12 @@ Target structure:
 - CI (M2+): add TS build (tsc) when TS packages exist.
 - No hidden retries or heuristics in CI logic (ADR-011, ADR-008).
 
+Testing responsibilities (ADR-016):
+
+- Unit/property tests live next to each crate; contract/BDD tests at workspace level.
+- Determinism gates and snapshot tests validate emitted Proof Bundles where applicable.
+- CI fails on flakiness; proofs may be stored under `/proofs/` for reproducibility.
+
 ## 6) Dev Experience
 
 - Provide `scripts/` helpers for common tasks (format, lint, build). Keep optional and documented.
@@ -81,11 +122,13 @@ Target structure:
 ## 7) Configuration & Security (ADR-017)
 
 - Secrets MUST NOT be managed by core; use env/dotenv. Redact in logs/proofs.
+ - Large sensitive blobs MUST NOT be inlined in JSON; use attachments in proofs.
 
 ## 8) Documentation
 
 - Root README: link to `/.specs/00_nerve.md` and this plan; state micro-CLI scope (ADR-010).
 - Later: /docs with mdBook or alternative.
+ - Keep specs authoritative; examples and Proof Bundles are separate from specs.
 
 ## 9) Roadmap & Milestones
 
