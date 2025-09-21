@@ -10,6 +10,24 @@ Future state: should orchestrate *all stages of readiness* until the project
 is production-grade and deployable.
 */
 // -------------------------------------------------------------------------------------
+// REVIEW (Cascade): This prototype encodes your goal: take a single intent file (Nerve.md)
+// and iteratively materialize a full, production‑ready project via model roles and
+// minimal, sandboxed tools. My reading of what you want from this script:
+// 1) Keep orchestration in‑repo and explicit; no hidden runtime.
+// 2) Let the model write specs/plans/templates, but keep file/process mutations
+//    deterministic and auditable (idempotent runs; minimal diffs; reversible).
+// 3) Grow a “readiness ladder” (build → test → package → release → publish) as opt‑in stages.
+// 4) Use tool calls for bounded, high‑leverage actions (create dir/file), not for policy.
+// 5) Over time, replace ad‑hoc checks (LLM .bool()) with deterministic validators,
+//    reserving LLMs for generation and structured planning.
+//
+// Migration sketch (no code change here):
+// - The injected llm()/dir/file should eventually be replaced by a tiny host that:
+//   (a) calls your model via an orchestrator client, (b) exposes deterministic tools,
+//   (c) applies textual changes via unified diffs (nrv.apply) rather than raw writes.
+// - Directory creation via a tool is fine; file content changes are best expressed as diffs.
+// - Where this script asks the model to answer boolean “is scaffolding satisfied?”, consider
+//   swapping to a parser that compares the real tree to the plan to avoid non‑determinism.
 /*
 Purpose (evolving): Orchestrate a progressive “readiness ladder” for the WayLaunch repo
 using LLM-assisted, idempotent actions. Today it bootstraps early artifacts; tomorrow it
@@ -74,6 +92,9 @@ const models = {
     checker: defaultModel,
     scaffolder: defaultModel,
 };
+// REVIEW: Model roles are clear and helpful for prompts. In a non‑injected world, these
+// names map to a concrete model id chosen from capabilities, plus per‑role prompt templates.
+// Keep roles, but make the transport explicit and validated against a capability snapshot.
 
 async function main() {
     if (!fileExists(NerveFile)) {
@@ -94,6 +115,9 @@ async function ensureFirstSpecFile() {
         dir.create(specsDir);
 
         await llm(models.specWriter)
+            // REVIEW: Generation step — good fit for LLM. Keep prompts explicit and stable.
+            // Consider appending a short, deterministic response contract (e.g., "write a
+            // single Markdown file; no frontmatter; no trailing spaces").
             .prompt([
                 "== Nerve.md ==\n\n",
                 file.read(NerveFile),
@@ -103,6 +127,9 @@ async function ensureFirstSpecFile() {
                 "Write a high level spec file for the WayLaunch project based on the Nerve file and template."
             ])
             .file.write(specsDir + `/00_WayLaunch.md`);
+            // REVIEW: For textual content, prefer applying a unified diff over direct writes
+            // so runs are auditable and idempotent. A future host can translate this into
+            // a diff application (nrv.apply) under the hood.
     }
 }
 
@@ -123,6 +150,8 @@ async function ensureProjectStructurePlanFile() {
                 "Write a high level project structure file for the WayLaunch project based on the Nerve file and template."
             ])
             .file.write(plansDir + '/00_project_structure.md');
+            // REVIEW: Treat this as the single source of truth for structure. Later stages
+            // should parse this deterministically (no LLM needed) to compute required dirs/files.
     }
 }
 
@@ -142,6 +171,10 @@ async function ensureProjectStructureScaffolding() {
             "Return true if the current project tree satisfies the directories/files required by the plan; otherwise return false."
         ])
         .bool();
+    // REVIEW: Using an LLM to return a boolean introduces non‑determinism. Strongly consider
+    // replacing this with a parser that compares the real tree to the plan and returns a
+    // precise list of missing nodes. You can still ask the model to REWRITE the plan, but not
+    // to validate it.
 
     if (!hasScaffolding) {
         await llm(models.scaffolder)
@@ -192,6 +225,12 @@ async function ensureProjectStructureScaffolding() {
                 maxCalls: 15,
                 timeout: 60000,
             });
+        // REVIEW: Tool calls are a great match here. To improve determinism:
+        // - Keep dirCreate for directories, but for files prefer a tool that applies a unified
+        //   diff (or writes only when the target content exactly matches a provided checksum).
+        // - Replace the implicit "create any missing files" with explicit plan entries so that
+        //   each mutation is traceable (who/what/why) and reproducible.
+        // - The host can rate‑limit and audit tool invocations; .concurrent hints map to that.
     }
 }
 

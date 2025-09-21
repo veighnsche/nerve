@@ -1,8 +1,0 @@
-{
-  "name": "nerve-monorepo",
-  "private": true,
-  "workspaces": [
-    "ts/packages/*",
-    "ts/packages/@nrv/*"
-  ]
-}

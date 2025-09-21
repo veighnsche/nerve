@@ -1,0 +1,9 @@
+{
+  "diffs": [
+    {
+      "path": ".examples/20_WayLaunch_project_interpreted_by_GPT-5/output/README.md",
+      "checksum": "deadbeef",
+      "unified_diff": "--- a/README.md\n+++ b/README.md\n@@ -1,5 +1,6 @@\n # WayLaunch Output (M1)\n \n This directory is created by applying a plan of unified diffs using nrv_rs::toolkit.\n \n+This line is added but checksum will fail intentionally.\n "
+    }
+  ]
+}
