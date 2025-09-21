@@ -6,6 +6,12 @@
 - Provide enough capability for scripted LLM workflows to scaffold and maintain codebases.
 - Maintain thin, common-sense guardrails: defaults fail safe, but callers can override when needed.
 
+## Implementation Status (M1)
+- `nrv.file`, `nrv.dir`, and `nrv.exec` are specified here; only portions used by `nrv.apply` are
+  implemented in Rust today. File write helpers are not yet exposed as a separate module.
+- For writes, production guidance is temp-file + atomic rename; M1 `nrv.apply` uses direct writes
+  and `WriteBackup` for safety. Future releases will expose `nrv.file.write` with atomic option.
+
 ## nrv.file
 ### Surface
 - `read(path)` → `Result<FileContent, FileError>`
@@ -16,7 +22,9 @@
 
 ### Behaviour
 - Paths are evaluated relative to caller-provided root; absolute paths require explicit opt-in.
-- Writes use temp-file + atomic rename; caller may disable via `strategy: WriteStrategy`.
+- Writes SHOULD use temp-file + atomic rename; caller may disable via `strategy: WriteStrategy`.
+- Note (M1): `nrv.apply` currently writes directly; atomic write strategy will be added when
+  `nrv.file.write` lands.
 - Supports UTF-8 files by default; other encodings require explicit flag.
 - `WriteStrategy`
   - `Overwrite` (default)

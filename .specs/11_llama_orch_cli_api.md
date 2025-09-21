@@ -5,6 +5,10 @@
 - Ensure the orchestrator response can be mirrored into both TypeScript (`.d.ts`) and Rust constants
   with deterministic builds.
 
+## Implementation Status (M1)
+- This document is guidance for the orchestrator team. The `nrv` CLI currently ships a stub for
+  `sync-capabilities` and will consume this API when the HTTP/SSE adapter is introduced.
+
 ## Required Endpoint
 
 ### `GET /capabilities`

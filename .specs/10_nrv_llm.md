@@ -7,6 +7,14 @@
   overridable.
 - Keep auditability first-class: every request, stream event, and tool invocation is observable.
 
+## Implementation Status (M1)
+- Implemented: client construction, capabilities → enqueue → stream/cancel, request builder with
+  model/workload/token validations, simplified streaming events.
+- Not yet implemented: tool registry and tool call handling; response schema validation helpers;
+  finish reasons on completion events; proof adapters.
+- The streaming surface in M1 maps orchestrator events to `LlmStreamEvent::{Started, Token, Metrics, Completed}`;
+  errors terminate the iterator with `LlmError::Stream`.
+
 ## Client Surface
 - `client(config)` — constructs an `LlmClient` with explicit transport + optional policies.
 - `client.capabilities()` — resolves orchestrator `CapabilitySnapshot` (see `.specs/04_nrv_orch_client.md`).
@@ -17,6 +25,8 @@
 - `request::builder()` — helper for composing prompts, inputs, guardrails, and tool requirements.
 - `response::validate()` — validates responses against caller-provided schema/expectations.
 - `stream::adapter()` — convenience for bridging orchestrator streams into structured narration + proofs.
+  
+See also: userland scaffolding helpers in `.specs/15_llama_orch_toolkit.md`.
 
 ## Request Model
 `LlmRequest` fields:
@@ -43,6 +53,9 @@ All numeric values MUST be validated against capability limits before dispatch.
 - `Error { code, message, retriable?, retry_after_ms? }`
 
 Streams MUST be ordered and terminate with `Completed` or `Error`.
+
+Note (M1): ToolCall/ToolResult and `finish_reason` are planned. Current code emits `Started | Token | Metrics | Completed`
+and surfaces errors via `LlmError::Stream` rather than a stream `Error` variant.
 
 ## Tool Integration
 - Tool descriptors registered via `tools::registry()` are serialized into `ToolBinding` entries.

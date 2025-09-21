@@ -5,6 +5,11 @@
 - Ships only user-facing entry points that can be explained quickly and audited in version control.
 - Emits usage guidance to STDERR and prints machine-friendly responses to STDOUT.
 
+## Implementation Status (M1)
+- `--version` and `--help` are implemented.
+- `sync-capabilities` is a stub that prints a TODO. The generation pipeline described below is planned
+  and will be wired once the orchestrator HTTP/SSE adapter is available.
+
 ## Commands
 
 ### `nrv --version`

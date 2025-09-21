@@ -4,6 +4,10 @@
 - Defines the orchestrator binding shape required by ADR 014 with structured errors from ADR 011.
 - Serves as a compile-time contract until a concrete transport implementation lands.
 
+## Implementation Status (M1)
+- The `TaskRequest` payload is minimal (`{ model: string }`) to match current tests and client usage.
+- Future work may extend `TaskRequest` with prompt payloads and guardrail options when primitives land.
+
 ## Data Model
 - `Capabilities` — complete orchestrator snapshot used by the CLI and runtime surfaces.
   - `metadata` (`OrchestratorMetadata`) — engine name, semantic version, optional build/commit identifiers.

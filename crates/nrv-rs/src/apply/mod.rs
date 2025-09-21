@@ -80,6 +80,8 @@ pub enum ApplyStatus {
 /// Errors raised while attempting to apply a diff.
 #[derive(Debug, thiserror::Error)]
 pub enum ApplyError {
+    #[error("nrv.apply: unimplemented: {message}")]
+    Unimplemented { message: &'static str },
     #[error("nrv.apply: io failure during {operation} on {path}: {source}")]
     Io {
         operation: &'static str,

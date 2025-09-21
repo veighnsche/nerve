@@ -7,6 +7,8 @@ use nrv_orch_client::{
     TaskRequest, WorkloadKind,
 };
 
+pub mod toolkit;
+
 /// Name of the `nrv.llm` module for scaffolding checks.
 #[must_use]
 pub const fn module_name() -> &'static str {
@@ -119,11 +121,7 @@ impl LlmRequest {
     }
 
     fn into_task_request(self) -> TaskRequest {
-        TaskRequest {
-            model: self.model,
-            workload: Some(self.workload),
-            max_tokens: self.max_tokens,
-        }
+        TaskRequest { model: self.model }
     }
 }
 
@@ -300,6 +298,7 @@ impl From<TaskAccepted> for LlmTaskHandle {
 }
 
 /// Convenience wrapper around orchestrator stream events with additional bookkeeping.
+#[derive(Debug)]
 pub struct LlmStream<S>
 where
     S: Iterator<Item = StreamEvent> + Send,

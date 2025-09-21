@@ -105,8 +105,6 @@ pub struct TaskId(pub String);
 #[derive(Debug, Clone)]
 pub struct TaskRequest {
     pub model: String,
-    pub workload: Option<WorkloadKind>,
-    pub max_tokens: Option<u32>,
 }
 
 #[derive(Debug, Clone)]

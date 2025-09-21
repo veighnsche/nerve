@@ -5,6 +5,11 @@
 - Ensure tool usage remains explicit, auditable, and caller-controlled per ADR-002/ADR-014.
 - Align Rust and JS implementations so orchestrator snapshots (`ToolCapability`) map to runtime callables.
 
+## Implementation Status (M1)
+- Planned: registry API and runtime handling of `ToolCall`/`ToolResult` are not yet implemented in `nrv-rs`.
+- The orchestrator contract for `ToolCapability` is defined; CLI snapshotting can surface tool metadata.
+- This document describes the target design; code will land in a future milestone.
+
 ## Concepts
 
 ### Tool Descriptor
