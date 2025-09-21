@@ -1,8 +1,0 @@
-{
-  "diffs": [
-    {
-      "path": ".examples/20_WayLaunch_project_interpreted_by_GPT-5/output/CHANGELOG.md",
-      "unified_diff": "--- /dev/null\n+++ b/CHANGELOG.md\n@@ -0,0 +1,3 @@\n+# Changelog\n+\n+Initial entry.\n"
-    }
-  ]
-}
